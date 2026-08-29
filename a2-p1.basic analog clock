@@ -1,0 +1,71 @@
+// ============================================================
+// A2-P1: Basic Analog Clock
+// Hour hand  : red,   240px long, 20px thick
+// Minute hand: green, 320px long, 16px thick
+// Second hand: blue,  400px long, 12px thick
+// ============================================================
+
+function setup() {
+  createCanvas(800, 800); // Canvas: 800x800
+  angleMode(DEGREES);
+}
+
+function draw() {
+  background(30);
+  translate(width / 2, height / 2);
+
+  // --- Clock face ---
+  fill(50);
+  stroke(200);
+  strokeWeight(4);
+  ellipse(0, 0, 700, 700);
+
+  // Hour tick marks
+  for (let i = 0; i < 12; i++) {
+    push();
+    rotate(360 / 12 * i);
+    stroke(200); strokeWeight(4);
+    line(0, -320, 0, -340);
+    pop();
+  }
+
+  // Minute tick marks
+  for (let i = 0; i < 60; i++) {
+    push();
+    rotate(360 / 60 * i);
+    stroke(150); strokeWeight(1.5);
+    line(0, -330, 0, -340);
+    pop();
+  }
+
+  // --- Hour hand ---
+  let hourAngle = map(hour() % 12, 0, 12, 0, 360);
+  push();
+  rotate(hourAngle);
+  stroke(255, 60, 60);
+  strokeWeight(20); strokeCap(ROUND);
+  line(0, 0, 0, -240);
+  pop();
+
+  // --- Minute hand ---
+  let minuteAngle = map(minute(), 0, 60, 0, 360);
+  push();
+  rotate(minuteAngle);
+  stroke(60, 220, 60);
+  strokeWeight(16); strokeCap(ROUND);
+  line(0, 0, 0, -320);
+  pop();
+
+  // --- Second hand ---
+  let secondAngle = map(second(), 0, 60, 0, 360);
+  push();
+  rotate(secondAngle);
+  stroke(60, 120, 255);
+  strokeWeight(12); strokeCap(ROUND);
+  line(0, 0, 0, -400);
+  pop();
+
+  // Center cap
+  fill(255); noStroke();
+  ellipse(0, 0, 18, 18);
+}
