@@ -1,0 +1,55 @@
+/*Artistic Intention
+Thinking that the genre of 'You Are So Beautiful' would go well with an LP, I created a shape resembling a record by drawing multiple layers of thin circles in the center of the screen to give the impression of a broken turntable and implementing the form of a spinning record (LP). When the music is calm, it rotates smoothly, but when the kick drum hits or the waveform energy rises, the trajectory of a specific circle is distorted.
+*/
+let song;
+let fft;
+
+function preload() {
+  // 1. mp3 불러오기
+  song = loadSound('You Are So Beautiful.mp3');
+}
+
+function setup() {
+  createCanvas(800, 800);
+  angleMode(DEGREES);
+  
+  // 2. 음악 재생하기
+  song.play();
+  
+  fft = new p5.FFT();
+  fft.setInput(song); // FFT 분석 대상을 재생 중인 mp3 파일로 지정
+}
+
+function draw() {
+  background(20, 20, 25);
+  translate(width / 2, height / 2);
+  
+  let audioWave = fft.waveform(); //waveform 분석
+  
+  noFill();
+  strokeWeight(1.5);
+  
+  // 여러 겹의 레코드 판 홈 그리기
+  for (let r = 50; r <= 200; r += 20) {
+    beginShape();
+    for (let i = 0; i <= 360; i += 5) {
+      let index = floor(map(i, 0, 360, 0, audioWave.length - 1));
+      
+      // 바깥쪽 궤적일수록 파형에 의한 왜곡을 더 크게 줌
+      let rOffset = audioWave[index] * map(r, 50, 200, 10, 60); 
+      
+      // 글리치 디테일: 에너지가 확 튀는 구간에 랜덤 노이즈 추가
+      if (abs(audioWave[index]) > 0.3) {
+         rOffset += random(-5, 5);
+      }
+      
+      // 시간에 따라 회전
+      let x = (r + rOffset) * cos(i + frameCount * 0.5);
+      let y = (r + rOffset) * sin(i + frameCount * 0.5);
+      
+      stroke(255, 255, 255, map(r, 50, 200, 255, 50));
+      vertex(x, y);
+    }
+    endShape(CLOSE);
+  }
+}
