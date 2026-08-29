@@ -1,0 +1,151 @@
+/*
+Artistic Intention
+In designing this visual clock, time was reinterpreted as a cosmic kinetic sculpture floating in a state of weightlessness. Repetitive geometric nodes were utilized to meet the requirement of being able to read the time without traditional numbers. The outer copper orbit features 24 nodes representing the 'hour,' while the inner silver orbit has 60 nodes for the 'minute,' subtly highlighted every five units. In other words, users can intuitively sense time by observing the spatial relationships of luminous celestial bodies placed along these orbits.
+Furthermore, this clock sought to incorporate a much slower time scale, such as the infradian rhythm, through a central 'Nebula' core that breathes and changes its color palette every second in accordance with the four seasons. It changes to cherry blossom pink symbolizing regeneration in spring, vibrant lime green representing vitality in summer, deep autumn foliage colors in fall, and pale colors representing tranquility in winter. Combined with comet-like particles orbiting every 60 seconds, this work sublimates the measurement of time into a meditative observation toward cosmic rhythms and pure, dynamic forms.
+*/
+
+function setup() {
+  createCanvas(800, 800);
+  angleMode(DEGREES);
+}
+
+function draw() {
+  background(10, 10, 15); // 깊은 우주의 색상
+  translate(width / 2, height / 2); // 캔버스 중앙을 기준점(0,0)으로 이동
+
+ let now = new Date();
+  let h = now.getHours();
+  let m = now.getMinutes();
+  let s = now.getSeconds();
+  let ms = now.getMilliseconds(); // 진짜 시계의 밀리초를 가져옴
+  let mo = month(); // 달은 기존 p5함수 유지
+  
+  let smoothSecond = s + ms / 1000;
+
+  // 부드러운 움직임을 위해 밀리초를 포함한 연속적인 시간 계산
+
+  let smoothMinute = m + smoothSecond / 60;
+  let smoothHour = h + smoothMinute / 60;
+
+  // 1. 거대한 느린 시간 척도 (월별 색상이 변하는 중앙 코어)
+  drawSlowTimeCore(mo);
+
+  // 2. 분 (Minute) - 안쪽 은빛 궤도 (반지름 180)
+  drawOrbitRing(180, 60, m, color(229, 228, 226), "minute");
+  
+  // 3. 시 (Hour) - 바깥쪽 구리빛 궤도 (반지름 280)
+  drawOrbitRing(280, 24, h, color(212, 175, 55), "hour");
+
+  // 4. 초 (Second) - 가장 역동적인 중심부의 빛
+  drawSecondParticle(90, smoothSecond);
+}
+
+// 궤도와 카운트 가능한 기하학적 요소(노드)를 그리는 함수
+function drawOrbitRing(radius, totalNodes, currentVal, accentColor, type) {
+  push();
+  noFill();
+  stroke(255, 255, 255, 20); // 희미한 궤도 선
+  strokeWeight(1);
+  ellipse(0, 0, radius * 2);
+
+  let angleStep = 360 / totalNodes;
+
+  // 반복을 통한 그래픽 요소 제시 (숫자 없이 셀 수 있게 만듦)
+  for (let i = 0; i < totalNodes; i++) {
+    // 0시/0분이 맨 위(12시 방향)에 오도록 -90도 보정
+    let angle = i * angleStep - 90; 
+    let x = cos(angle) * radius;
+    let y = sin(angle) * radius;
+
+    // 분(minute) 궤도일 경우 5분마다 약간 더 눈에 띄게 마킹
+    if (type === "minute") {
+      if (i % 5 === 0) {
+        stroke(255, 255, 255, 80);
+        strokeWeight(3);
+      } else {
+        stroke(255, 255, 255, 30);
+        strokeWeight(1.5);
+      }
+      point(x, y);
+    } 
+    // 시(hour) 궤도일 경우 24개의 명확한 노드 생성
+    else if (type === "hour") {
+      noStroke();
+      fill(255, 255, 255, 40);
+      ellipse(x, y, 4, 4);
+    }
+
+    // 현재 시간에 해당하는 위치에 도달하면 조각(Sphere)을 렌더링
+    if (i === currentVal) {
+      // 글로우 효과 (빛 퍼짐)
+      for (let r = 20; r > 0; r -= 4) {
+        let glowAlpha = map(r, 20, 0, 10, 150);
+        fill(red(accentColor), green(accentColor), blue(accentColor), glowAlpha);
+        noStroke();
+        ellipse(x, y, r * 1.5);
+      }
+      // 코어 조각
+      fill(255);
+      ellipse(x, y, 8);
+    }
+  }
+  pop();
+}
+
+// 부드럽게 공전하는 초 단위 파티클
+function drawSecondParticle(radius, smoothSecond) {
+  push();
+  let angle = map(smoothSecond, 0, 60, -90, 270);
+  let x = cos(angle) * radius;
+  let y = sin(angle) * radius;
+
+  // 꼬리가 남는 혜성 같은 효과
+  for (let i = 0; i < 15; i++) {
+    let tailAngle = angle - i * 1.5;
+    let tx = cos(tailAngle) * radius;
+    let ty = sin(tailAngle) * radius;
+    let tailAlpha = map(i, 0, 15, 100, 0);
+    fill(0, 255, 255, tailAlpha);
+    noStroke();
+    ellipse(tx, ty, 6 - i * 0.3);
+  }
+  
+  fill(255);
+  ellipse(x, y, 6);
+  pop();
+}
+
+// 훨씬 느린 시간 척도(월)를 반영하는 중앙 코어
+function drawSlowTimeCore(mo) {
+  
+ push();
+ let r, g, b;
+
+  // 컴퓨터의 월(mo) 데이터에 따라 4계절 색상 지정
+  if (mo >= 3 && mo <=5 ) {
+    // 봄 (3, 4, 5월): 화사한 벚꽃 분홍색
+    r = 240; g = 190; b = 210; 
+  } 
+  else if (mo >= 6 && mo <= 8) {
+    //  여름 (6, 7, 8월): 싱그러운 라임 그린
+    r = 80; g = 220; b = 130;
+  } 
+  else if (mo >= 9 && mo <= 11 ) {
+    // 가을 (9, 10, 11월): 짙은 단풍 주황색
+    r = 255; g = 130; b = 50;
+  } 
+  else {
+    // 겨울 (12, 1, 2월): 페일한 얼음색
+    r = 160; g = 230; b = 255;
+  }
+
+  let coreSize = map(sin(frameCount * 6), -1, 1, 80, 90); // 매초마다 숨 쉬는 효과
+
+  noStroke();
+  for (let i = coreSize; i > 0; i -= 5) {
+    let alphaVal = map(i, coreSize, 0, 5, 60);
+    fill(r, g, b, alphaVal);
+    ellipse(0, 0, i);
+  }
+  pop();
+}
