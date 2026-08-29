@@ -1,0 +1,52 @@
+let startEpoch;
+let startMillis;
+
+function setup() {
+  createCanvas(800, 800);
+  angleMode(DEGREES);
+  let kstOffset = 9 * 60 * 60 * 1000; 
+  startEpoch  = Date.now() + kstOffset;   // 실제 시각 기준점
+  startMillis = millis();     // p5 기준점
+}
+
+function draw() {
+  background(30);
+  translate(width / 2, height / 2);
+
+  fill(50); stroke(200); strokeWeight(4);
+  ellipse(0, 0, 700, 700);
+
+  for (let i = 0; i < 12; i++) {
+    push(); rotate(360 / 12 * i);
+    stroke(200); strokeWeight(4);
+    line(0, -320, 0, -340); pop();
+  }
+  for (let i = 0; i < 60; i++) {
+    push(); rotate(360 / 60 * i);
+    stroke(150); strokeWeight(1.5);
+    line(0, -330, 0, -340); pop();
+  }
+
+  // Date.now() 기준 + millis() 증가분 
+  let elapsed  = millis() - startMillis;
+  let nowMs    = startEpoch + elapsed;
+  let totalSec = nowMs / 1000.0;
+  let fracSec  = totalSec % 60;
+  let fracMin  = (totalSec / 60) % 60;
+  let fracHour = (totalSec / 3600) % 12;
+
+  push(); rotate(map(fracHour, 0, 12, 0, 360));
+  stroke(255, 60, 60); strokeWeight(20); strokeCap(ROUND);
+  line(0, 0, 0, -240); pop();
+
+  push(); rotate(map(fracMin, 0, 60, 0, 360));
+  stroke(60, 220, 60); strokeWeight(16); strokeCap(ROUND);
+  line(0, 0, 0, -320); pop();
+
+  push(); rotate(map(fracSec, 0, 60, 0, 360));
+  stroke(60, 120, 255); strokeWeight(12); strokeCap(ROUND);
+  line(0, 0, 0, -400); pop();
+
+  fill(255); noStroke();
+  ellipse(0, 0, 18, 18);
+}
